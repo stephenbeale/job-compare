@@ -74,7 +74,7 @@ export function calcEffectiveHourlyRate(job) {
 
 export function calcAnnualCommuteCost(job) {
   const monthlyCost = parseFloat(job.commuteCostMonthly) || 0;
-  const daysInOffice = parseFloat(job.daysInOffice) ?? 5;
+  const daysInOffice = parseFloat(job.daysInOffice) || 5;
   const ratio = daysInOffice / UK_DEFAULTS.workingDaysPerWeek;
   return monthlyCost * 12 * ratio;
 }
@@ -83,14 +83,14 @@ export function calcAnnualCommuteHours(job) {
   const minutesEachWay = parseFloat(job.commuteMinutes) || 0;
   const annualLeave = parseFloat(job.annualLeave) || 25;
   const workingDays = (UK_DEFAULTS.weeksPerYear * UK_DEFAULTS.workingDaysPerWeek) - annualLeave;
-  const daysInOffice = parseFloat(job.daysInOffice) ?? 5;
+  const daysInOffice = parseFloat(job.daysInOffice) || 5;
   const ratio = daysInOffice / UK_DEFAULTS.workingDaysPerWeek;
   return (minutesEachWay * 2 * workingDays * ratio) / 60;
 }
 
 export function calcAnnualWorkplaceCost(job) {
   const monthlyCost = parseFloat(job.workplaceCostMonthly) || 0;
-  const daysInOffice = parseFloat(job.daysInOffice) ?? 5;
+  const daysInOffice = parseFloat(job.daysInOffice) || 5;
   const ratio = daysInOffice / UK_DEFAULTS.workingDaysPerWeek;
   return monthlyCost * 12 * ratio;
 }
