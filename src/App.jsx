@@ -8,6 +8,7 @@ import {
   calcOvertimeCost,
   calcTotalCompensation,
   calcTrueNetValue,
+  calcTrueHourlyRate,
   calcAnnualWorkplaceCost,
   rankJobs,
   exportToMarkdown,
@@ -64,6 +65,7 @@ function App() {
     workplaceCost: rankJobs(jobs, j => calcAnnualWorkplaceCost(j), true),
     totalComp: rankJobs(jobs, j => calcTotalCompensation(j)),
     trueNet: rankJobs(jobs, j => calcTrueNetValue(j)),
+    trueHourly: rankJobs(jobs, j => calcTrueHourlyRate(j)),
   };
 
   return (
