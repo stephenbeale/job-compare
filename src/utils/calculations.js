@@ -48,7 +48,8 @@ export function createEmptyJob(id) {
     progressionRating: 3,
     careerLongTermNotes: '',
     benefits: [],
-    workFromHomeDays: '0',
+    daysInOffice: '5',
+    workplaceCostMonthly: '0',
     pensionEmployer: '3',
     probationMonths: '3',
     noticePeriod: '1',
@@ -73,11 +74,8 @@ export function calcEffectiveHourlyRate(job) {
 
 export function calcAnnualCommuteCost(job) {
   const monthlyCost = parseFloat(job.commuteCostMonthly) || 0;
-  const annualLeave = parseFloat(job.annualLeave) || 25;
-  const workingDays = (UK_DEFAULTS.weeksPerYear * UK_DEFAULTS.workingDaysPerWeek) - annualLeave;
-  const wfhDays = parseFloat(job.workFromHomeDays) || 0;
-  const commuteDaysPerWeek = UK_DEFAULTS.workingDaysPerWeek - wfhDays;
-  const ratio = commuteDaysPerWeek / UK_DEFAULTS.workingDaysPerWeek;
+  const daysInOffice = parseFloat(job.daysInOffice) ?? 5;
+  const ratio = daysInOffice / UK_DEFAULTS.workingDaysPerWeek;
   return monthlyCost * 12 * ratio;
 }
 
@@ -85,10 +83,16 @@ export function calcAnnualCommuteHours(job) {
   const minutesEachWay = parseFloat(job.commuteMinutes) || 0;
   const annualLeave = parseFloat(job.annualLeave) || 25;
   const workingDays = (UK_DEFAULTS.weeksPerYear * UK_DEFAULTS.workingDaysPerWeek) - annualLeave;
-  const wfhDays = parseFloat(job.workFromHomeDays) || 0;
-  const commuteDaysPerWeek = UK_DEFAULTS.workingDaysPerWeek - wfhDays;
-  const ratio = commuteDaysPerWeek / UK_DEFAULTS.workingDaysPerWeek;
+  const daysInOffice = parseFloat(job.daysInOffice) ?? 5;
+  const ratio = daysInOffice / UK_DEFAULTS.workingDaysPerWeek;
   return (minutesEachWay * 2 * workingDays * ratio) / 60;
+}
+
+export function calcAnnualWorkplaceCost(job) {
+  const monthlyCost = parseFloat(job.workplaceCostMonthly) || 0;
+  const daysInOffice = parseFloat(job.daysInOffice) ?? 5;
+  const ratio = daysInOffice / UK_DEFAULTS.workingDaysPerWeek;
+  return monthlyCost * 12 * ratio;
 }
 
 export function calcBonusAmount(job) {
@@ -135,7 +139,8 @@ export function calcTrueNetValue(job) {
   const totalComp = calcTotalCompensation(job);
   const commuteCost = calcAnnualCommuteCost(job);
   const overtimeCost = calcOvertimeCost(job);
-  return totalComp - commuteCost - overtimeCost;
+  const workplaceCost = calcAnnualWorkplaceCost(job);
+  return totalComp - commuteCost - overtimeCost - workplaceCost;
 }
 
 // Score each job out of 100 based on weighted factors
@@ -222,7 +227,8 @@ export function exportToMarkdown(jobs) {
     ['Unpaid Overtime', j => `${j.weeklyOvertime}h/week`],
     ['Commute', j => `${j.commuteMinutes} min each way`],
     ['Commute Cost', j => `${fmt(parseFloat(j.commuteCostMonthly) || 0)}/month`],
-    ['WFH Days', j => `${j.workFromHomeDays}/week`],
+    ['Days in Office', j => `${j.daysInOffice}/week`],
+    ['Workplace Costs', j => `${fmt(parseFloat(j.workplaceCostMonthly) || 0)}/month`],
     ['Bonus', j => j.bonusIsPercent ? `${j.bonusValue}%` : fmt(parseFloat(j.bonusValue) || 0)],
     ['Employer Pension', j => `${j.pensionEmployer}%`],
     ['Benefits', j => j.benefits.join(', ') || 'None'],

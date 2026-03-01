@@ -8,6 +8,7 @@ import {
   calcOvertimeCost,
   calcNetWorkingHours,
   calcTrueNetValue,
+  calcAnnualWorkplaceCost,
   calcBonusAmount,
   calcBenefitsValue,
   calcOverallScore,
@@ -221,17 +222,32 @@ export default function JobCard({ job, allJobs, rankings, onChange, onRemove, in
         </div>
 
         <div className="field-row">
-          <label>WFH Days</label>
+          <label>Days in Office</label>
           <div className="input-with-prefix">
             <input
               type="number"
-              value={job.workFromHomeDays}
-              onChange={e => update('workFromHomeDays', e.target.value)}
-              placeholder="0"
+              value={job.daysInOffice}
+              onChange={e => update('daysInOffice', e.target.value)}
+              placeholder="5"
               min="0" max="5"
             />
-            <span className="suffix">/week</span>
+            <span className="suffix">per week</span>
           </div>
+        </div>
+
+        <div className="field-row">
+          <label>Workplace Costs</label>
+          <div className="input-with-prefix">
+            <span className="prefix">&pound;</span>
+            <input
+              type="number"
+              value={job.workplaceCostMonthly}
+              onChange={e => update('workplaceCostMonthly', e.target.value)}
+              placeholder="0"
+            />
+            <span className="suffix">/month</span>
+          </div>
+          <span className="hint">Parking, lunches, coffee, dry cleaning, etc.</span>
         </div>
       </div>
 
@@ -336,6 +352,11 @@ export default function JobCard({ job, allJobs, rankings, onChange, onRemove, in
           <div className="calc-row">
             <span className="calc-label">Annual Commute Hours</span>
             <span className="calc-value">{Math.round(calcAnnualCommuteHours(job))} hrs</span>
+          </div>
+
+          <div className={`calc-row ${rank('workplaceCost') || ''}`}>
+            <span className="calc-label">Annual Workplace Costs</span>
+            <span className="calc-value">{fmt(calcAnnualWorkplaceCost(job))}</span>
           </div>
 
           <div className="calc-row">
