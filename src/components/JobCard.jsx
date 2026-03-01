@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import StarRating from './StarRating';
 import BenefitTags from './BenefitTags';
+import AiImportModal from './AiImportModal';
 import {
   calcEffectiveHourlyRate,
   calcAnnualCommuteCost,
@@ -44,6 +46,7 @@ function ScoreRing({ score }) {
 }
 
 export default function JobCard({ job, allJobs, rankings, onChange, onRemove, index }) {
+  const [showAiImport, setShowAiImport] = useState(false);
   const hasSalary = parseFloat(job.salary) > 0;
 
   const update = (field, value) => {
@@ -79,8 +82,30 @@ export default function JobCard({ job, allJobs, rankings, onChange, onRemove, in
           onChange={e => update('company', e.target.value)}
           placeholder="Company Name"
         />
+        <button
+          type="button"
+          className="ai-import-btn"
+          onClick={() => setShowAiImport(true)}
+          title="Paste a job listing and let AI fill in the fields"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 2a4 4 0 0 1 4 4c0 1.1-.9 2-2 2h-4a2 2 0 0 1-2-2 4 4 0 0 1 4-4z"/>
+            <path d="M8 8v2a6 6 0 0 0 8 0V8"/>
+            <path d="M12 14v8"/>
+            <path d="M8 18h8"/>
+          </svg>
+          AI Import
+        </button>
         {hasSalary && <ScoreRing score={score} />}
       </div>
+
+      {showAiImport && (
+        <AiImportModal
+          job={job}
+          onUpdate={onChange}
+          onClose={() => setShowAiImport(false)}
+        />
+      )}
 
       {/* Salary & Core */}
       <div className="card-section">
