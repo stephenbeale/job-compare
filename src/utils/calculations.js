@@ -37,6 +37,7 @@ export function createEmptyJob(id) {
     id,
     title: '',
     company: '',
+    companyWebsite: '',
     salary: '',
     annualLeave: '25',
     contractualHours: '37.5',
