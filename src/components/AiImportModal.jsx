@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { getApiKey, saveApiKey, parseJobListing, mergeAiData } from '../utils/aiParser';
 
 export default function AiImportModal({ job, onUpdate, onClose }) {
@@ -35,7 +36,7 @@ export default function AiImportModal({ job, onUpdate, onClose }) {
     }
   };
 
-  return (
+  return createPortal(
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
@@ -108,6 +109,7 @@ export default function AiImportModal({ job, onUpdate, onClose }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
