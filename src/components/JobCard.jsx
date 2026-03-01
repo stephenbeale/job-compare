@@ -2,6 +2,7 @@ import { useState } from 'react';
 import StarRating from './StarRating';
 import BenefitTags from './BenefitTags';
 import AiImportModal from './AiImportModal';
+import CompanyLogo from './CompanyLogo';
 import {
   calcEffectiveHourlyRate,
   calcAnnualCommuteCost,
@@ -71,17 +72,28 @@ export default function JobCard({ job, allJobs, rankings, onChange, onRemove, in
 
       {/* Header */}
       <div className="card-header">
+        <div className="card-header-top">
+          <CompanyLogo company={job.company} companyWebsite={job.companyWebsite} />
+          <div className="card-header-inputs">
+            <input
+              className="card-title-input"
+              value={job.title}
+              onChange={e => update('title', e.target.value)}
+              placeholder="Job Title"
+            />
+            <input
+              className="card-company-input"
+              value={job.company}
+              onChange={e => update('company', e.target.value)}
+              placeholder="Company Name"
+            />
+          </div>
+        </div>
         <input
-          className="card-title-input"
-          value={job.title}
-          onChange={e => update('title', e.target.value)}
-          placeholder="Job Title"
-        />
-        <input
-          className="card-company-input"
-          value={job.company}
-          onChange={e => update('company', e.target.value)}
-          placeholder="Company Name"
+          className="card-website-input"
+          value={job.companyWebsite}
+          onChange={e => update('companyWebsite', e.target.value)}
+          placeholder="Company website (e.g. google.com)"
         />
         <button
           type="button"
