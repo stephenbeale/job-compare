@@ -99,6 +99,17 @@ function App() {
             Calculations are estimates. Benefit values are UK averages.
             Always verify terms directly with the employer.
           </p>
+          <p style={{ marginTop: '0.75rem', fontSize: '0.8rem', opacity: 0.6 }}>
+            Found this useful?{' '}
+            <a
+              href="https://buymeacoffee.com/stephenbeale"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: 'var(--accent)' }}
+            >
+              Buy me a coffee
+            </a>
+          </p>
         </footer>
       </main>
     </div>
