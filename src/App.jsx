@@ -110,6 +110,37 @@ function App() {
               Buy me a coffee
             </a>
           </p>
+          <p style={{ marginTop: '0.75rem', fontSize: '0.75rem', opacity: 0.5 }}>
+            <a
+              href="MONZO_REFERRAL_URL"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: 'var(--text-muted, #999)' }}
+            >
+              Starting a new job? Monzo makes budgeting easy
+            </a>
+            {' \u00B7 '}
+            <a
+              href="QUIDCO_REFERRAL_URL"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: 'var(--text-muted, #999)' }}
+            >
+              Make your salary go further with Quidco cashback
+            </a>
+            {' \u00B7 '}
+            <a
+              href="CLAUDE_REFERRAL_URL"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: 'var(--text-muted, #999)' }}
+            >
+              AI-powered job import built with Claude
+            </a>
+          </p>
+          <p style={{ marginTop: '0.5rem', fontSize: '0.65rem', opacity: 0.35 }}>
+            Some links are referral links
+          </p>
         </footer>
       </main>
     </div>
