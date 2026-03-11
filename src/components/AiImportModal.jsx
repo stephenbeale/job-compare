@@ -1,20 +1,13 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { getApiKey, saveApiKey, parseJobListing, mergeAiData } from '../utils/aiParser';
+import { parseJobListing, mergeAiData } from '../utils/aiParser';
 
 export default function AiImportModal({ job, onUpdate, onClose }) {
   const [text, setText] = useState('');
-  const [apiKey, setApiKey] = useState(getApiKey);
-  const [showKey, setShowKey] = useState(!getApiKey());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const handleImport = async () => {
-    if (!apiKey.trim()) {
-      setError('Please enter your OpenAI API key.');
-      setShowKey(true);
-      return;
-    }
     if (!text.trim()) {
       setError('Please paste a job listing.');
       return;
@@ -22,10 +15,9 @@ export default function AiImportModal({ job, onUpdate, onClose }) {
 
     setLoading(true);
     setError('');
-    saveApiKey(apiKey);
 
     try {
-      const aiData = await parseJobListing(text, apiKey.trim());
+      const aiData = await parseJobListing(text);
       const merged = mergeAiData(job, aiData);
       onUpdate(merged);
       onClose();
@@ -37,11 +29,11 @@ export default function AiImportModal({ job, onUpdate, onClose }) {
   };
 
   return createPortal(
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label="AI Import">
       <div className="modal" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <h2>AI Import</h2>
-          <button className="modal-close" onClick={onClose}>&times;</button>
+          <button className="modal-close" onClick={onClose} aria-label="Close">&times;</button>
         </div>
 
         <p className="modal-description">
@@ -49,54 +41,19 @@ export default function AiImportModal({ job, onUpdate, onClose }) {
           details automatically. You can review and edit the results afterwards.
         </p>
 
-        {showKey ? (
-          <div className="modal-field">
-            <label>OpenAI API Key</label>
-            <div className="key-input-row">
-              <input
-                type="password"
-                value={apiKey}
-                onChange={e => setApiKey(e.target.value)}
-                placeholder="sk-..."
-                className="modal-input"
-              />
-              <button
-                type="button"
-                className="btn-sm"
-                onClick={() => setShowKey(false)}
-                disabled={!apiKey.trim()}
-              >
-                Save
-              </button>
-            </div>
-            <span className="modal-hint">
-              Stored locally in your browser. Never sent anywhere except OpenAI.
-              Uses gpt-4o-mini (~0.1p per import).
-            </span>
-          </div>
-        ) : (
-          <div className="modal-field">
-            <div className="key-saved">
-              API key saved
-              <button type="button" className="link-btn" onClick={() => setShowKey(true)}>
-                Change
-              </button>
-            </div>
-          </div>
-        )}
-
         <div className="modal-field">
-          <label>Job Listing Text</label>
+          <label htmlFor="ai-import-text">Job Listing Text</label>
           <textarea
+            id="ai-import-text"
             value={text}
             onChange={e => setText(e.target.value)}
-            placeholder={"Paste the full job listing here...\n\nCopy everything from the job advert — title, salary, benefits, working hours, location, etc. The more detail you include, the better the extraction."}
+            placeholder={"Paste the full job listing here...\n\nCopy everything from the job advert \u2014 title, salary, benefits, working hours, location, etc. The more detail you include, the better the extraction."}
             rows={12}
             className="modal-textarea"
           />
         </div>
 
-        {error && <div className="modal-error">{error}</div>}
+        {error && <div className="modal-error" role="alert">{error}</div>}
 
         <div className="modal-actions">
           <button className="btn-secondary" onClick={onClose}>Cancel</button>
@@ -108,6 +65,10 @@ export default function AiImportModal({ job, onUpdate, onClose }) {
             {loading ? 'Extracting...' : 'Extract & Fill'}
           </button>
         </div>
+
+        <p className="modal-hint" style={{ marginTop: '0.5rem', textAlign: 'center' }}>
+          Free to use &mdash; powered by Claude AI. Limited to 20 imports per day.
+        </p>
       </div>
     </div>,
     document.body
