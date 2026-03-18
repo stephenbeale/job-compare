@@ -9,6 +9,7 @@ import {
   calcTotalCompensation,
   calcTrueNetValue,
   calcTrueHourlyRate,
+  calcTrueHourlyRateWithCommute,
   calcAnnualWorkplaceCost,
   rankJobs,
   exportToMarkdown,
@@ -66,6 +67,7 @@ function App() {
     totalComp: rankJobs(jobs, j => calcTotalCompensation(j)),
     trueNet: rankJobs(jobs, j => calcTrueNetValue(j)),
     trueHourly: rankJobs(jobs, j => calcTrueHourlyRate(j)),
+    trueHourlyCommute: rankJobs(jobs, j => calcTrueHourlyRateWithCommute(j)),
   };
 
   return (

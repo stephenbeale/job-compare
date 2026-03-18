@@ -12,6 +12,7 @@ import {
   calcNetWorkingHours,
   calcTrueNetValue,
   calcTrueHourlyRate,
+  calcTrueHourlyRateWithCommute,
   calcAnnualWorkplaceCost,
   calcBonusAmount,
   calcBenefitsValue,
@@ -430,6 +431,11 @@ export default function JobCard({ job, allJobs, rankings, onChange, onRemove, in
           <div className={`calc-row grand-total ${rank('trueHourly') || ''}`} style={{ marginTop: '0.3rem' }}>
             <span className="calc-label">True Hourly Rate</span>
             <span className="calc-value">{fmt(calcTrueHourlyRate(job), 2)}/hr</span>
+          </div>
+
+          <div className={`calc-row grand-total ${rank('trueHourlyCommute') || ''}`}>
+            <span className="calc-label">True Hourly Rate (inc. commute)</span>
+            <span className="calc-value">{fmt(calcTrueHourlyRateWithCommute(job), 2)}/hr</span>
           </div>
         </div>
       )}
