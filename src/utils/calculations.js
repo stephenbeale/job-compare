@@ -136,8 +136,20 @@ export function calcNetWorkingHours(job) {
   return weeklyHours * workingWeeks;
 }
 
-// True hourly rate: net value / total hours given to the job (work + overtime + commute)
+// True hourly rate: net value / work hours (contractual + overtime, adjusted for leave)
 export function calcTrueHourlyRate(job) {
+  const trueNet = calcTrueNetValue(job);
+  const weeklyHours = parseFloat(job.contractualHours) || 37.5;
+  const overtime = parseFloat(job.weeklyOvertime) || 0;
+  const annualLeave = parseFloat(job.annualLeave) || 25;
+  const workingWeeks = UK_DEFAULTS.weeksPerYear - (annualLeave / UK_DEFAULTS.workingDaysPerWeek);
+  const totalWorkHours = (weeklyHours + overtime) * workingWeeks;
+  if (totalWorkHours === 0) return 0;
+  return trueNet / totalWorkHours;
+}
+
+// True hourly rate including commute: net value / total hours given (work + overtime + commute)
+export function calcTrueHourlyRateWithCommute(job) {
   const trueNet = calcTrueNetValue(job);
   const weeklyHours = parseFloat(job.contractualHours) || 37.5;
   const overtime = parseFloat(job.weeklyOvertime) || 0;
@@ -260,6 +272,7 @@ export function exportToMarkdown(jobs) {
     ['Overtime Hidden Cost', j => fmt(calcOvertimeCost(j))],
     ['True Net Value', j => fmt(calcTrueNetValue(j))],
     ['True Hourly Rate', j => fmt(calcTrueHourlyRate(j), 2)],
+    ['True Hourly Rate (inc. commute)', j => fmt(calcTrueHourlyRateWithCommute(j), 2)],
     ['Overall Score', j => `${calcOverallScore(j, validJobs)}/100`],
   ];
 
