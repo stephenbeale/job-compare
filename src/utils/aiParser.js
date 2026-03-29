@@ -1,10 +1,10 @@
 const PROXY_URL = import.meta.env.VITE_AI_PROXY_URL || 'https://job-compare-ai.stephenbeale.workers.dev';
 
-export async function parseJobListing(text) {
+async function callProxy(body) {
   const response = await fetch(`${PROXY_URL}/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text }),
+    body: JSON.stringify(body),
   });
 
   const data = await response.json();
@@ -18,6 +18,14 @@ export async function parseJobListing(text) {
   }
 
   return data;
+}
+
+export async function parseJobListing(text) {
+  return callProxy({ text });
+}
+
+export async function parseJobUrl(url) {
+  return callProxy({ url });
 }
 
 // Merge AI-parsed data into an existing job object, only overwriting non-null values
