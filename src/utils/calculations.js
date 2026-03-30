@@ -44,6 +44,9 @@ export function createEmptyJob(id) {
     weeklyOvertime: '0',
     commuteMinutes: '30',
     commuteCostMonthly: '0',
+    commuteMethod: 'other',
+    commuteDistanceMiles: '',
+    commuteVehicleMpg: '',
     bonusValue: '0',
     bonusIsPercent: false,
     progressionRating: 3,
@@ -52,6 +55,9 @@ export function createEmptyJob(id) {
     daysInOffice: '5',
     workplaceCostMonthly: '0',
     pensionEmployer: '3',
+    pensionEmployerMatchMax: '',
+    pensionEmployeeMax: '',
+    pensionType: 'dc',
     probationMonths: '3',
     noticePeriod: '1',
     sicknessPolicy: 'Statutory',
@@ -73,11 +79,26 @@ export function calcEffectiveHourlyRate(job) {
   return salary / annualHours;
 }
 
+export function calcMonthlyFuelCost(job) {
+  if (job.commuteMethod !== 'car') return 0;
+  const distanceMiles = parseFloat(job.commuteDistanceMiles) || 0;
+  const mpg = parseFloat(job.commuteVehicleMpg) || 0;
+  if (distanceMiles === 0 || mpg === 0) return 0;
+  const litresPerGallon = 4.546;
+  const fuelPricePerLitre = 1.40; // approx UK average
+  const costPerMile = fuelPricePerLitre * litresPerGallon / mpg;
+  const daysInOffice = parseFloat(job.daysInOffice) || 5;
+  const workingDaysPerMonth = (UK_DEFAULTS.weeksPerYear * daysInOffice) / 12;
+  return costPerMile * distanceMiles * 2 * workingDaysPerMonth; // return trip
+}
+
 export function calcAnnualCommuteCost(job) {
   const monthlyCost = parseFloat(job.commuteCostMonthly) || 0;
+  const fuelCost = calcMonthlyFuelCost(job);
+  const totalMonthly = monthlyCost + fuelCost;
   const daysInOffice = parseFloat(job.daysInOffice) || 5;
   const ratio = daysInOffice / UK_DEFAULTS.workingDaysPerWeek;
-  return monthlyCost * 12 * ratio;
+  return totalMonthly * 12 * ratio;
 }
 
 export function calcAnnualCommuteHours(job) {
@@ -112,12 +133,27 @@ export function calcBenefitsValue(job) {
   }, 0);
 }
 
+export function calcPensionValue(job) {
+  const salary = parseFloat(job.salary) || 0;
+  const employerPercent = parseFloat(job.pensionEmployer) || 0;
+  const matchMaxPercent = parseFloat(job.pensionEmployerMatchMax) || 0;
+  // If a match cap is set, employer contribution is capped at that level
+  const effectiveEmployer = matchMaxPercent > 0
+    ? Math.min(employerPercent, matchMaxPercent)
+    : employerPercent;
+  let pensionValue = (salary * effectiveEmployer) / 100;
+  // DB pensions are significantly more valuable — apply 2x multiplier
+  if (job.pensionType === 'db') {
+    pensionValue *= 2;
+  }
+  return pensionValue;
+}
+
 export function calcTotalCompensation(job) {
   const salary = parseFloat(job.salary) || 0;
   const bonus = calcBonusAmount(job);
   const benefits = calcBenefitsValue(job);
-  const pensionPercent = parseFloat(job.pensionEmployer) || 0;
-  const pensionValue = (salary * pensionPercent) / 100;
+  const pensionValue = calcPensionValue(job);
   return salary + bonus + benefits + pensionValue;
 }
 
@@ -253,11 +289,18 @@ export function exportToMarkdown(jobs) {
     ['Weekly Hours', j => `${j.contractualHours}h`],
     ['Unpaid Overtime', j => `${j.weeklyOvertime}h/week`],
     ['Commute', j => `${j.commuteMinutes} min each way`],
+    ['Commute Method', j => j.commuteMethod === 'car' ? 'Own car' : 'Other'],
+    ['Commute Distance', j => j.commuteDistanceMiles ? `${j.commuteDistanceMiles} miles each way` : '-'],
+    ['Vehicle MPG', j => j.commuteVehicleMpg || '-'],
     ['Commute Cost', j => `${fmt(parseFloat(j.commuteCostMonthly) || 0)}/month`],
+    ['Est. Fuel Cost', j => j.commuteMethod === 'car' ? `${fmt(calcMonthlyFuelCost(j))}/month` : '-'],
     ['Days in Office', j => `${j.daysInOffice}/week`],
     ['Workplace Costs', j => `${fmt(parseFloat(j.workplaceCostMonthly) || 0)}/month`],
     ['Bonus', j => j.bonusIsPercent ? `${j.bonusValue}%` : fmt(parseFloat(j.bonusValue) || 0)],
     ['Employer Pension', j => `${j.pensionEmployer}%`],
+    ['Employer Match Cap', j => j.pensionEmployerMatchMax ? `${j.pensionEmployerMatchMax}%` : '-'],
+    ['Max Employee Contribution', j => j.pensionEmployeeMax ? `${j.pensionEmployeeMax}%` : '-'],
+    ['Pension Type', j => j.pensionType === 'db' ? 'Defined Benefit' : 'Defined Contribution'],
     ['Benefits', j => j.benefits.join(', ') || 'None'],
     ['Progression', j => `${'★'.repeat(j.progressionRating)}${'☆'.repeat(5 - j.progressionRating)}`],
     ['Career Long-term', j => j.careerLongTermNotes || '-'],

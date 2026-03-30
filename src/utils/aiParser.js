@@ -28,6 +28,8 @@ export function mergeAiData(existingJob, aiData) {
     'title', 'company', 'salary', 'annualLeave', 'contractualHours',
     'weeklyOvertime', 'commuteMinutes', 'commuteCostMonthly', 'daysInOffice',
     'workplaceCostMonthly', 'bonusValue', 'bonusIsPercent', 'pensionEmployer',
+    'pensionEmployerMatchMax', 'pensionEmployeeMax', 'pensionType',
+    'commuteMethod', 'commuteDistanceMiles', 'commuteVehicleMpg',
     'probationMonths', 'noticePeriod', 'sicknessPolicy', 'progressionRating',
     'jobSecurity', 'workLifeBalance', 'cultureFit', 'careerLongTermNotes',
   ];
