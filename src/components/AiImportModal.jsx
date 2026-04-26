@@ -72,7 +72,6 @@ export default function AiImportModal({ job, onUpdate, onClose }) {
 
   return createPortal(
     <div className="modal-overlay" onClick={onClose}>
-      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
       <div
         className="modal"
         role="dialog"
