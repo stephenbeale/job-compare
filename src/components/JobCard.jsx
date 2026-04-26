@@ -7,6 +7,7 @@ import {
   calcEffectiveHourlyRate,
   calcAnnualCommuteCost,
   calcAnnualCommuteHours,
+  calcMonthlyFuelCost,
   calcTotalCompensation,
   calcOvertimeCost,
   calcNetWorkingHours,
@@ -16,6 +17,7 @@ import {
   calcAnnualWorkplaceCost,
   calcBonusAmount,
   calcBenefitsValue,
+  calcPensionValue,
   calcOverallScore,
   UK_DEFAULTS,
 } from '../utils/calculations';
@@ -164,7 +166,23 @@ export default function JobCard({ job, allJobs, rankings, onChange, onRemove, in
         </div>
 
         <div className="field-row">
-          <label>Employer Pension</label>
+          <label htmlFor={`job-${job.id}-pension-type`}>Pension Type</label>
+          <select
+            id={`job-${job.id}-pension-type`}
+            value={job.pensionType}
+            onChange={e => update('pensionType', e.target.value)}
+            aria-describedby={job.pensionType === 'db' ? `job-${job.id}-pension-type-hint` : undefined}
+          >
+            <option value="dc">Defined Contribution</option>
+            <option value="db">Defined Benefit (final salary)</option>
+          </select>
+          {job.pensionType === 'db' && (
+            <span id={`job-${job.id}-pension-type-hint`} className="hint">DB pensions are valued at 2&times; DC equivalent</span>
+          )}
+        </div>
+
+        <div className="field-row">
+          <label>Employer Contribution</label>
           <div className="input-with-prefix">
             <input
               type="number"
@@ -176,6 +194,40 @@ export default function JobCard({ job, allJobs, rankings, onChange, onRemove, in
             <span className="suffix">%</span>
           </div>
           <span className="hint">UK min: {UK_DEFAULTS.minPensionEmployer}%</span>
+        </div>
+
+        <div className="field-row">
+          <label htmlFor={`job-${job.id}-pension-employer-match-max`}>Employer Match Cap</label>
+          <div className="input-with-prefix">
+            <input
+              id={`job-${job.id}-pension-employer-match-max`}
+              type="number"
+              value={job.pensionEmployerMatchMax}
+              onChange={e => update('pensionEmployerMatchMax', e.target.value)}
+              placeholder="No cap"
+              min="0" max="100" step="0.5"
+              aria-describedby={`job-${job.id}-pension-employer-match-max-hint`}
+            />
+            <span className="suffix">%</span>
+          </div>
+          <span id={`job-${job.id}-pension-employer-match-max-hint`} className="hint">Max employer will match (leave blank if no cap)</span>
+        </div>
+
+        <div className="field-row">
+          <label htmlFor={`job-${job.id}-pension-employee-max`}>Max Employee Contribution</label>
+          <div className="input-with-prefix">
+            <input
+              id={`job-${job.id}-pension-employee-max`}
+              type="number"
+              value={job.pensionEmployeeMax}
+              onChange={e => update('pensionEmployeeMax', e.target.value)}
+              placeholder="No limit"
+              min="0" max="100" step="0.5"
+              aria-describedby={`job-${job.id}-pension-employee-max-hint`}
+            />
+            <span className="suffix">%</span>
+          </div>
+          <span id={`job-${job.id}-pension-employee-max-hint`} className="hint">Max allowable employee contribution</span>
         </div>
       </div>
 
@@ -247,6 +299,18 @@ export default function JobCard({ job, allJobs, rankings, onChange, onRemove, in
         </div>
 
         <div className="field-row">
+          <label htmlFor={`job-${job.id}-commute-method`}>Commute Method</label>
+          <select
+            id={`job-${job.id}-commute-method`}
+            value={job.commuteMethod}
+            onChange={e => update('commuteMethod', e.target.value)}
+          >
+            <option value="other">Public transport / other</option>
+            <option value="car">Own car</option>
+          </select>
+        </div>
+
+        <div className="field-row">
           <label>Monthly Cost</label>
           <div className="input-with-prefix">
             <span className="prefix">&pound;</span>
@@ -258,7 +322,50 @@ export default function JobCard({ job, allJobs, rankings, onChange, onRemove, in
             />
             <span className="suffix">/month</span>
           </div>
+          {job.commuteMethod !== 'car' && (
+            <span className="hint">e.g. train pass, bus fare</span>
+          )}
         </div>
+
+        {job.commuteMethod === 'car' && (
+          <>
+            <div className="field-row">
+              <label htmlFor={`job-${job.id}-commute-distance-miles`}>Distance (one way)</label>
+              <div className="input-with-prefix">
+                <input
+                  id={`job-${job.id}-commute-distance-miles`}
+                  type="number"
+                  value={job.commuteDistanceMiles}
+                  onChange={e => update('commuteDistanceMiles', e.target.value)}
+                  placeholder="0"
+                  min="0" step="0.5"
+                />
+                <span className="suffix">miles</span>
+              </div>
+            </div>
+
+            <div className="field-row">
+              <label htmlFor={`job-${job.id}-commute-vehicle-mpg`}>Vehicle MPG</label>
+              <div className="input-with-prefix">
+                <input
+                  id={`job-${job.id}-commute-vehicle-mpg`}
+                  type="number"
+                  value={job.commuteVehicleMpg}
+                  onChange={e => update('commuteVehicleMpg', e.target.value)}
+                  placeholder="40"
+                  min="1" step="1"
+                />
+                <span className="suffix">mpg</span>
+              </div>
+            </div>
+
+            {calcMonthlyFuelCost(job) > 0 && (
+              <div className="field-row">
+                <span className="hint">Est. fuel cost: &pound;{calcMonthlyFuelCost(job).toFixed(2)}/month (at &pound;1.40/litre)</span>
+              </div>
+            )}
+          </>
+        )}
 
         <div className="field-row">
           <label>Days in Office</label>
@@ -416,6 +523,11 @@ export default function JobCard({ job, allJobs, rankings, onChange, onRemove, in
           <div className="calc-row">
             <span className="calc-label">Benefits Est. Value</span>
             <span className="calc-value">{fmt(calcBenefitsValue(job))}</span>
+          </div>
+
+          <div className="calc-row">
+            <span className="calc-label">Pension Value{job.pensionType === 'db' ? ' (DB 2\u00D7)' : ''}</span>
+            <span className="calc-value">{fmt(calcPensionValue(job))}</span>
           </div>
 
           <div className={`calc-row total ${rank('totalComp') || ''}`}>
