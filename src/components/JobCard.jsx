@@ -166,13 +166,18 @@ export default function JobCard({ job, allJobs, rankings, onChange, onRemove, in
         </div>
 
         <div className="field-row">
-          <label>Pension Type</label>
-          <select value={job.pensionType} onChange={e => update('pensionType', e.target.value)}>
+          <label htmlFor={`job-${job.id}-pension-type`}>Pension Type</label>
+          <select
+            id={`job-${job.id}-pension-type`}
+            value={job.pensionType}
+            onChange={e => update('pensionType', e.target.value)}
+            aria-describedby={job.pensionType === 'db' ? `job-${job.id}-pension-type-hint` : undefined}
+          >
             <option value="dc">Defined Contribution</option>
             <option value="db">Defined Benefit (final salary)</option>
           </select>
           {job.pensionType === 'db' && (
-            <span className="hint">DB pensions are valued at 2&times; DC equivalent</span>
+            <span id={`job-${job.id}-pension-type-hint`} className="hint">DB pensions are valued at 2&times; DC equivalent</span>
           )}
         </div>
 
@@ -192,33 +197,37 @@ export default function JobCard({ job, allJobs, rankings, onChange, onRemove, in
         </div>
 
         <div className="field-row">
-          <label>Employer Match Cap</label>
+          <label htmlFor={`job-${job.id}-pension-employer-match-max`}>Employer Match Cap</label>
           <div className="input-with-prefix">
             <input
+              id={`job-${job.id}-pension-employer-match-max`}
               type="number"
               value={job.pensionEmployerMatchMax}
               onChange={e => update('pensionEmployerMatchMax', e.target.value)}
               placeholder="No cap"
               min="0" max="100" step="0.5"
+              aria-describedby={`job-${job.id}-pension-employer-match-max-hint`}
             />
             <span className="suffix">%</span>
           </div>
-          <span className="hint">Max employer will match (leave blank if no cap)</span>
+          <span id={`job-${job.id}-pension-employer-match-max-hint`} className="hint">Max employer will match (leave blank if no cap)</span>
         </div>
 
         <div className="field-row">
-          <label>Max Employee Contribution</label>
+          <label htmlFor={`job-${job.id}-pension-employee-max`}>Max Employee Contribution</label>
           <div className="input-with-prefix">
             <input
+              id={`job-${job.id}-pension-employee-max`}
               type="number"
               value={job.pensionEmployeeMax}
               onChange={e => update('pensionEmployeeMax', e.target.value)}
               placeholder="No limit"
               min="0" max="100" step="0.5"
+              aria-describedby={`job-${job.id}-pension-employee-max-hint`}
             />
             <span className="suffix">%</span>
           </div>
-          <span className="hint">Max allowable employee contribution</span>
+          <span id={`job-${job.id}-pension-employee-max-hint`} className="hint">Max allowable employee contribution</span>
         </div>
       </div>
 
@@ -290,8 +299,12 @@ export default function JobCard({ job, allJobs, rankings, onChange, onRemove, in
         </div>
 
         <div className="field-row">
-          <label>Commute Method</label>
-          <select value={job.commuteMethod} onChange={e => update('commuteMethod', e.target.value)}>
+          <label htmlFor={`job-${job.id}-commute-method`}>Commute Method</label>
+          <select
+            id={`job-${job.id}-commute-method`}
+            value={job.commuteMethod}
+            onChange={e => update('commuteMethod', e.target.value)}
+          >
             <option value="other">Public transport / other</option>
             <option value="car">Own car</option>
           </select>
@@ -317,9 +330,10 @@ export default function JobCard({ job, allJobs, rankings, onChange, onRemove, in
         {job.commuteMethod === 'car' && (
           <>
             <div className="field-row">
-              <label>Distance (one way)</label>
+              <label htmlFor={`job-${job.id}-commute-distance-miles`}>Distance (one way)</label>
               <div className="input-with-prefix">
                 <input
+                  id={`job-${job.id}-commute-distance-miles`}
                   type="number"
                   value={job.commuteDistanceMiles}
                   onChange={e => update('commuteDistanceMiles', e.target.value)}
@@ -331,9 +345,10 @@ export default function JobCard({ job, allJobs, rankings, onChange, onRemove, in
             </div>
 
             <div className="field-row">
-              <label>Vehicle MPG</label>
+              <label htmlFor={`job-${job.id}-commute-vehicle-mpg`}>Vehicle MPG</label>
               <div className="input-with-prefix">
                 <input
+                  id={`job-${job.id}-commute-vehicle-mpg`}
                   type="number"
                   value={job.commuteVehicleMpg}
                   onChange={e => update('commuteVehicleMpg', e.target.value)}

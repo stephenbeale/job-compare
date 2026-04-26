@@ -137,10 +137,12 @@ export function calcPensionValue(job) {
   const salary = parseFloat(job.salary) || 0;
   const employerPercent = parseFloat(job.pensionEmployer) || 0;
   const matchMaxPercent = parseFloat(job.pensionEmployerMatchMax) || 0;
-  // If a match cap is set, employer contribution is capped at that level
-  const effectiveEmployer = matchMaxPercent > 0
-    ? Math.min(employerPercent, matchMaxPercent)
-    : employerPercent;
+  const employeeMaxPercent = parseFloat(job.pensionEmployeeMax) || 0;
+  // Employer match is capped by their match policy AND by the employee's max contribution
+  // (employer can't match more than the employee is allowed to put in).
+  let effectiveEmployer = employerPercent;
+  if (matchMaxPercent > 0) effectiveEmployer = Math.min(effectiveEmployer, matchMaxPercent);
+  if (employeeMaxPercent > 0) effectiveEmployer = Math.min(effectiveEmployer, employeeMaxPercent);
   let pensionValue = (salary * effectiveEmployer) / 100;
   // DB pensions are significantly more valuable — apply 2x multiplier
   if (job.pensionType === 'db') {
