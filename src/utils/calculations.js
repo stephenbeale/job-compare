@@ -174,7 +174,6 @@ export function calcTrueNetValue(job) {
 export function calcOverallScore(job, allJobs) {
   if (!parseFloat(job.salary)) return 0;
 
-  const scores = {};
   const weights = {
     trueNetValue: 25,
     effectiveHourlyRate: 20,
