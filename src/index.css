@@ -820,6 +820,38 @@ select:focus {
   background: var(--accent-muted);
 }
 
+/* ==================== AI IMPORT TABS ==================== */
+
+.ai-import-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.ai-import-tab {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ai-import-tab:hover {
+  color: var(--text);
+}
+
+.ai-import-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
 /* ==================== MODAL ==================== */
 
 .modal-overlay {

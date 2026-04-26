@@ -1,3 +1,39 @@
+function htmlToText(html) {
+  // Remove script, style, nav, header, footer tags and their contents
+  let text = html
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<nav[\s\S]*?<\/nav>/gi, '')
+    .replace(/<header[\s\S]*?<\/header>/gi, '')
+    .replace(/<footer[\s\S]*?<\/footer>/gi, '');
+
+  // Convert common block elements to newlines
+  text = text.replace(/<\/?(p|div|br|h[1-6]|li|tr|section|article)[^>]*>/gi, '\n');
+
+  // Remove all remaining HTML tags
+  text = text.replace(/<[^>]+>/g, ' ');
+
+  // Decode common HTML entities
+  text = text
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&pound;/g, '£')
+    .replace(/&euro;/g, '€')
+    .replace(/&mdash;/g, '—')
+    .replace(/&ndash;/g, '–')
+    .replace(/&#\d+;/g, '');
+
+  // Collapse whitespace
+  text = text.replace(/[ \t]+/g, ' ');
+  text = text.replace(/\n\s*\n/g, '\n').trim();
+
+  return text;
+}
+
 const ALLOWED_ORIGINS = [
   'https://stephenbeale.github.io',
   'http://localhost:5173',
@@ -105,13 +141,55 @@ export default {
       return Response.json({ error: 'Invalid JSON body' }, { status: 400, headers });
     }
 
-    const { text } = body;
-    if (!text || typeof text !== 'string' || text.trim().length < 20) {
-      return Response.json({ error: 'Please provide job listing text (at least 20 characters).' }, { status: 400, headers });
-    }
+    const { text, url } = body;
 
-    // Cap input length to prevent abuse
-    const trimmedText = text.slice(0, 8000);
+    let trimmedText;
+
+    if (url) {
+      // URL mode: fetch the page and extract text
+      if (typeof url !== 'string' || !/^https?:\/\/.+/.test(url)) {
+        return Response.json({ error: 'Please provide a valid URL starting with http:// or https://' }, { status: 400, headers });
+      }
+
+      try {
+        const pageResponse = await fetch(url, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (compatible; JobCompareBot/1.0)',
+            'Accept': 'text/html,application/xhtml+xml',
+          },
+          redirect: 'follow',
+        });
+
+        if (!pageResponse.ok) {
+          return Response.json(
+            { error: `Could not fetch the page (HTTP ${pageResponse.status}). Check the URL and try again.` },
+            { status: 400, headers }
+          );
+        }
+
+        const html = await pageResponse.text();
+        trimmedText = htmlToText(html).slice(0, 8000);
+
+        if (trimmedText.length < 20) {
+          return Response.json(
+            { error: 'Could not extract enough text from that page. Try pasting the job listing text instead.' },
+            { status: 400, headers }
+          );
+        }
+      } catch (err) {
+        console.error('Fetch error:', err);
+        return Response.json(
+          { error: 'Failed to fetch the page. The site may be blocking requests — try pasting the text instead.' },
+          { status: 400, headers }
+        );
+      }
+    } else {
+      // Text mode (existing behaviour)
+      if (!text || typeof text !== 'string' || text.trim().length < 20) {
+        return Response.json({ error: 'Please provide job listing text (at least 20 characters).' }, { status: 400, headers });
+      }
+      trimmedText = text.slice(0, 8000);
+    }
 
     try {
       const response = await fetch('https://api.anthropic.com/v1/messages', {
