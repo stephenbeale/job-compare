@@ -128,10 +128,11 @@ export default function JobCard({ job, allJobs, rankings, onChange, onRemove, in
         <h3 className="section-title">Compensation</h3>
 
         <div className="field-row">
-          <label>Base Salary</label>
+          <label htmlFor={`job-${job.id}-salary`}>Base Salary</label>
           <div className="input-with-prefix">
             <span className="prefix">&pound;</span>
             <input
+              id={`job-${job.id}-salary`}
               type="number"
               value={job.salary}
               onChange={e => update('salary', e.target.value)}
@@ -143,11 +144,12 @@ export default function JobCard({ job, allJobs, rankings, onChange, onRemove, in
         </div>
 
         <div className="field-row">
-          <label>Bonus</label>
+          <label htmlFor={`job-${job.id}-bonus-value`}>Bonus</label>
           <div className="bonus-input">
             <div className="input-with-prefix">
               <span className="prefix">{job.bonusIsPercent ? '%' : '\u00A3'}</span>
               <input
+                id={`job-${job.id}-bonus-value`}
                 type="number"
                 value={job.bonusValue}
                 onChange={e => update('bonusValue', e.target.value)}
@@ -182,9 +184,10 @@ export default function JobCard({ job, allJobs, rankings, onChange, onRemove, in
         </div>
 
         <div className="field-row">
-          <label>Employer Contribution</label>
+          <label htmlFor={`job-${job.id}-pension-employer`}>Employer Contribution</label>
           <div className="input-with-prefix">
             <input
+              id={`job-${job.id}-pension-employer`}
               type="number"
               value={job.pensionEmployer}
               onChange={e => update('pensionEmployer', e.target.value)}
@@ -236,9 +239,10 @@ export default function JobCard({ job, allJobs, rankings, onChange, onRemove, in
         <h3 className="section-title">Working Hours</h3>
 
         <div className="field-row">
-          <label>Contractual Hours</label>
+          <label htmlFor={`job-${job.id}-contractual-hours`}>Contractual Hours</label>
           <div className="input-with-prefix">
             <input
+              id={`job-${job.id}-contractual-hours`}
               type="number"
               value={job.contractualHours}
               onChange={e => update('contractualHours', e.target.value)}
@@ -250,9 +254,10 @@ export default function JobCard({ job, allJobs, rankings, onChange, onRemove, in
         </div>
 
         <div className="field-row">
-          <label>Unpaid Overtime</label>
+          <label htmlFor={`job-${job.id}-weekly-overtime`}>Unpaid Overtime</label>
           <div className="input-with-prefix">
             <input
+              id={`job-${job.id}-weekly-overtime`}
               type="number"
               value={job.weeklyOvertime}
               onChange={e => update('weeklyOvertime', e.target.value)}
@@ -265,9 +270,10 @@ export default function JobCard({ job, allJobs, rankings, onChange, onRemove, in
         </div>
 
         <div className="field-row">
-          <label>Annual Leave</label>
+          <label htmlFor={`job-${job.id}-annual-leave`}>Annual Leave</label>
           <div className="input-with-prefix">
             <input
+              id={`job-${job.id}-annual-leave`}
               type="number"
               value={job.annualLeave}
               onChange={e => update('annualLeave', e.target.value)}
@@ -285,9 +291,10 @@ export default function JobCard({ job, allJobs, rankings, onChange, onRemove, in
         <h3 className="section-title">Commute</h3>
 
         <div className="field-row">
-          <label>Travel Time</label>
+          <label htmlFor={`job-${job.id}-commute-minutes`}>Travel Time</label>
           <div className="input-with-prefix">
             <input
+              id={`job-${job.id}-commute-minutes`}
               type="number"
               value={job.commuteMinutes}
               onChange={e => update('commuteMinutes', e.target.value)}
@@ -311,10 +318,11 @@ export default function JobCard({ job, allJobs, rankings, onChange, onRemove, in
         </div>
 
         <div className="field-row">
-          <label>Monthly Cost</label>
+          <label htmlFor={`job-${job.id}-commute-cost-monthly`}>Monthly Cost</label>
           <div className="input-with-prefix">
             <span className="prefix">&pound;</span>
             <input
+              id={`job-${job.id}-commute-cost-monthly`}
               type="number"
               value={job.commuteCostMonthly}
               onChange={e => update('commuteCostMonthly', e.target.value)}
@@ -368,9 +376,10 @@ export default function JobCard({ job, allJobs, rankings, onChange, onRemove, in
         )}
 
         <div className="field-row">
-          <label>Days in Office</label>
+          <label htmlFor={`job-${job.id}-days-in-office`}>Days in Office</label>
           <div className="input-with-prefix">
             <input
+              id={`job-${job.id}-days-in-office`}
               type="number"
               value={job.daysInOffice}
               onChange={e => update('daysInOffice', e.target.value)}
@@ -382,10 +391,11 @@ export default function JobCard({ job, allJobs, rankings, onChange, onRemove, in
         </div>
 
         <div className="field-row">
-          <label>Workplace Costs</label>
+          <label htmlFor={`job-${job.id}-workplace-cost-monthly`}>Workplace Costs</label>
           <div className="input-with-prefix">
             <span className="prefix">&pound;</span>
             <input
+              id={`job-${job.id}-workplace-cost-monthly`}
               type="number"
               value={job.workplaceCostMonthly}
               onChange={e => update('workplaceCostMonthly', e.target.value)}
@@ -439,9 +449,10 @@ export default function JobCard({ job, allJobs, rankings, onChange, onRemove, in
         <h3 className="section-title">Contract Terms</h3>
 
         <div className="field-row">
-          <label>Probation</label>
+          <label htmlFor={`job-${job.id}-probation-months`}>Probation</label>
           <div className="input-with-prefix">
             <input
+              id={`job-${job.id}-probation-months`}
               type="number"
               value={job.probationMonths}
               onChange={e => update('probationMonths', e.target.value)}
@@ -452,9 +463,10 @@ export default function JobCard({ job, allJobs, rankings, onChange, onRemove, in
         </div>
 
         <div className="field-row">
-          <label>Notice Period</label>
+          <label htmlFor={`job-${job.id}-notice-period`}>Notice Period</label>
           <div className="input-with-prefix">
             <input
+              id={`job-${job.id}-notice-period`}
               type="number"
               value={job.noticePeriod}
               onChange={e => update('noticePeriod', e.target.value)}
@@ -465,8 +477,12 @@ export default function JobCard({ job, allJobs, rankings, onChange, onRemove, in
         </div>
 
         <div className="field-row">
-          <label>Sickness Policy</label>
-          <select value={job.sicknessPolicy} onChange={e => update('sicknessPolicy', e.target.value)}>
+          <label htmlFor={`job-${job.id}-sickness-policy`}>Sickness Policy</label>
+          <select
+            id={`job-${job.id}-sickness-policy`}
+            value={job.sicknessPolicy}
+            onChange={e => update('sicknessPolicy', e.target.value)}
+          >
             <option value="Statutory">Statutory (SSP only)</option>
             <option value="Enhanced">Enhanced company scheme</option>
             <option value="Full">Full pay for X weeks</option>
