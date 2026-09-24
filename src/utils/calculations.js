@@ -67,6 +67,12 @@ export function createEmptyJob(id) {
   };
 }
 
+// 0 is a valid value (fully remote), so only fall back to 5 when blank/invalid
+function parseDaysInOffice(job) {
+  const days = parseFloat(job.daysInOffice);
+  return Number.isFinite(days) ? days : UK_DEFAULTS.workingDaysPerWeek;
+}
+
 export function calcEffectiveHourlyRate(job) {
   const salary = parseFloat(job.salary) || 0;
   const weeklyHours = parseFloat(job.contractualHours) || 37.5;
@@ -87,7 +93,7 @@ export function calcMonthlyFuelCost(job) {
   const litresPerGallon = 4.546;
   const fuelPricePerLitre = 1.40; // approx UK average
   const costPerMile = fuelPricePerLitre * litresPerGallon / mpg;
-  const daysInOffice = parseFloat(job.daysInOffice) || 5;
+  const daysInOffice = parseDaysInOffice(job);
   const workingDaysPerMonth = (UK_DEFAULTS.weeksPerYear * daysInOffice) / 12;
   return costPerMile * distanceMiles * 2 * workingDaysPerMonth; // return trip
 }
@@ -95,26 +101,24 @@ export function calcMonthlyFuelCost(job) {
 export function calcAnnualCommuteCost(job) {
   const monthlyCost = parseFloat(job.commuteCostMonthly) || 0;
   const fuelCost = calcMonthlyFuelCost(job);
-  const totalMonthly = monthlyCost + fuelCost;
-  const daysInOffice = parseFloat(job.daysInOffice) || 5;
-  const ratio = daysInOffice / UK_DEFAULTS.workingDaysPerWeek;
-  return totalMonthly * 12 * ratio;
+  // Monthly cost is what's actually paid, and fuel is already based on office days
+  if (parseDaysInOffice(job) === 0) return 0;
+  return (monthlyCost + fuelCost) * 12;
 }
 
 export function calcAnnualCommuteHours(job) {
   const minutesEachWay = parseFloat(job.commuteMinutes) || 0;
   const annualLeave = parseFloat(job.annualLeave) || 25;
   const workingDays = (UK_DEFAULTS.weeksPerYear * UK_DEFAULTS.workingDaysPerWeek) - annualLeave;
-  const daysInOffice = parseFloat(job.daysInOffice) || 5;
+  const daysInOffice = parseDaysInOffice(job);
   const ratio = daysInOffice / UK_DEFAULTS.workingDaysPerWeek;
   return (minutesEachWay * 2 * workingDays * ratio) / 60;
 }
 
 export function calcAnnualWorkplaceCost(job) {
   const monthlyCost = parseFloat(job.workplaceCostMonthly) || 0;
-  const daysInOffice = parseFloat(job.daysInOffice) || 5;
-  const ratio = daysInOffice / UK_DEFAULTS.workingDaysPerWeek;
-  return monthlyCost * 12 * ratio;
+  if (parseDaysInOffice(job) === 0) return 0;
+  return monthlyCost * 12;
 }
 
 export function calcBonusAmount(job) {
