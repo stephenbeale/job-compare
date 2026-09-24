@@ -11,6 +11,8 @@ import {
   calcTotalCompensation,
   calcOvertimeCost,
   calcNetWorkingHours,
+  calcTotalHoursCommitted,
+  calcWeeklyHoursCommitted,
   calcTrueNetValue,
   calcTrueHourlyRate,
   calcTrueHourlyRateWithCommute,
@@ -508,6 +510,14 @@ export default function JobCard({ job, allJobs, rankings, onChange, onRemove, in
           <div className="calc-row">
             <span className="calc-label">Net Working Hours/Year</span>
             <span className="calc-value">{Math.round(calcNetWorkingHours(job))} hrs</span>
+          </div>
+
+          <div className={`calc-row ${rank('totalHours') || ''}`}>
+            <span className="calc-label">Total Hours/Year (inc. overtime &amp; commute)</span>
+            <span className="calc-value">
+              {Math.round(calcTotalHoursCommitted(job))} hrs
+              {' '}(~{calcWeeklyHoursCommitted(job).toFixed(1)}/wk)
+            </span>
           </div>
 
           <div className={`calc-row ${rank('overtimeCost') || ''}`}>

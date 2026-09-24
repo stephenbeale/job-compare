@@ -190,16 +190,28 @@ export function calcTrueHourlyRate(job) {
   return trueNet / totalWorkHours;
 }
 
-// True hourly rate including commute: net value / total hours given (work + overtime + commute)
-export function calcTrueHourlyRateWithCommute(job) {
-  const trueNet = calcTrueNetValue(job);
+// Total hours given to the job per year: work + overtime + commute
+export function calcTotalHoursCommitted(job) {
   const weeklyHours = parseFloat(job.contractualHours) || 37.5;
   const overtime = parseFloat(job.weeklyOvertime) || 0;
   const annualLeave = parseFloat(job.annualLeave) || 25;
   const workingWeeks = UK_DEFAULTS.weeksPerYear - (annualLeave / UK_DEFAULTS.workingDaysPerWeek);
   const totalWorkHours = (weeklyHours + overtime) * workingWeeks;
-  const commuteHours = calcAnnualCommuteHours(job);
-  const totalHoursGiven = totalWorkHours + commuteHours;
+  return totalWorkHours + calcAnnualCommuteHours(job);
+}
+
+// Average hours given per working week (excludes annual leave weeks)
+export function calcWeeklyHoursCommitted(job) {
+  const annualLeave = parseFloat(job.annualLeave) || 25;
+  const workingWeeks = UK_DEFAULTS.weeksPerYear - (annualLeave / UK_DEFAULTS.workingDaysPerWeek);
+  if (workingWeeks <= 0) return 0;
+  return calcTotalHoursCommitted(job) / workingWeeks;
+}
+
+// True hourly rate including commute: net value / total hours given (work + overtime + commute)
+export function calcTrueHourlyRateWithCommute(job) {
+  const trueNet = calcTrueNetValue(job);
+  const totalHoursGiven = calcTotalHoursCommitted(job);
   if (totalHoursGiven === 0) return 0;
   return trueNet / totalHoursGiven;
 }
@@ -316,6 +328,8 @@ export function exportToMarkdown(jobs) {
     ['Effective Hourly Rate', j => fmt(calcEffectiveHourlyRate(j), 2)],
     ['Annual Commute Cost', j => fmt(calcAnnualCommuteCost(j))],
     ['Annual Commute Hours', j => `${Math.round(calcAnnualCommuteHours(j))}h`],
+    ['Net Working Hours/Year', j => `${Math.round(calcNetWorkingHours(j))}h`],
+    ['Total Hours/Year (inc. overtime & commute)', j => `${Math.round(calcTotalHoursCommitted(j))}h (~${calcWeeklyHoursCommitted(j).toFixed(1)}h/week)`],
     ['Total Compensation', j => fmt(calcTotalCompensation(j))],
     ['Overtime Hidden Cost', j => fmt(calcOvertimeCost(j))],
     ['True Net Value', j => fmt(calcTrueNetValue(j))],
